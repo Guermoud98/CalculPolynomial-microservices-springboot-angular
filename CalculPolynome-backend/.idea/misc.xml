@@ -8,6 +8,7 @@
         <option value="$PROJECT_DIR$/eureka-server/pom.xml" />
         <option value="$PROJECT_DIR$/service-polynome/pom.xml" />
         <option value="$PROJECT_DIR$/service-racines/pom.xml" />
+        <option value="$PROJECT_DIR$/service-factorisation/pom.xml" />
       </list>
     </option>
   </component>

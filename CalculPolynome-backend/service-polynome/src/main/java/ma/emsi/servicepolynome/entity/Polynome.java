@@ -1,6 +1,5 @@
 package ma.emsi.servicepolynome.entity;
 
-
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -11,11 +10,12 @@ public class Polynome {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String expression; // Exemple : x^3 - 6x^2 + 11x - 6
 
     private String description; // Une description optionnelle.
 
+    @Column(columnDefinition = "DATETIME")
     private LocalDateTime createdAt;
 
     public Polynome() {

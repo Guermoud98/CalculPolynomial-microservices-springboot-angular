@@ -4,14 +4,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Polynomial {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,4 +16,25 @@ public class Polynomial {
     public Polynomial(String expression) {
         this.expression = expression;
     }
+
+    public Polynomial() {
+
+    }
+    // Getters et Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getExpression() {
+        return expression;
+    }
+
+    public void setExpression(String expression) {
+        this.expression = expression;
+    }
+
 }

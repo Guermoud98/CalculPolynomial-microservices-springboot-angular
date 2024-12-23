@@ -9,15 +9,21 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/factorisation")
 public class FactorisationController {
-
     @Autowired
     private FactorisationService factorisationService;
-    
+
+    /**
+     * Endpoint pour sauvegarder un polynôme dans la base de données.
+     *
+     * @param polynome L'expression du polynôme à sauvegarder.
+     * @return Le polynôme sauvegardé.
+     */
     @PostMapping("/polynomial")
     public ResponseEntity<Polynomial> savePolynomial(@RequestParam String polynome) {
         Polynomial savedPolynomial = factorisationService.savePolynomial(polynome);
         return ResponseEntity.ok(savedPolynomial);
     }
+
     @GetMapping("/factorize")
     public ResponseEntity<String> factorize(@RequestParam String polynome) {
         String factorizedExpression = factorisationService.factoriserPolynome(polynome);

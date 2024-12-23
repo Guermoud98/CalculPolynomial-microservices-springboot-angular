@@ -4,6 +4,8 @@ import com.emsi.servicefactorisation.entity.Polynomial;
 import com.emsi.servicefactorisation.repository.PolynomialRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.matheclipse.core.eval.ExprEvaluator;
+import org.matheclipse.core.interfaces.IExpr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -14,20 +16,13 @@ import java.util.Optional;
 
 @Service
 public class FactorisationService {
-
-    @Value("${wolframalpha.api.key}")
-    private String apiKey;
-
-    @Value("${wolframalpha.api.url}")
-    private String apiUrl;
-
     @Autowired
     private PolynomialRepository polynomialRepository;
 
-    private final RestTemplate restTemplate;
+    private final ExprEvaluator evaluator;
 
-    public FactorisationService(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public FactorisationService() {
+        this.evaluator = new ExprEvaluator(); // Initialisation de Matheclipse
     }
 
     public Polynomial savePolynomial(String expression) {
@@ -38,34 +33,11 @@ public class FactorisationService {
 
     public String factoriserPolynome(String polynome) {
         try {
-            String query = "factor " + polynome;
-            String url = String.format("%s?input=%s&format=JSON&output=JSON&appid=%s",
-                    apiUrl, query, apiKey);
-
-            // Appel à l'API Wolfram Alpha
-            String response = restTemplate.getForObject(url, String.class);
-
-            // Extraire le résultat de factorisation
-            return extractFactorizedExpression(response);
+            String expression = "Factor[" + polynome + "]";
+            IExpr result = evaluator.evaluate(expression); // Évalue l'expression avec Matheclipse
+            return result.toString(); // Renvoie le résultat factorisé
         } catch (Exception e) {
             throw new RuntimeException("Erreur lors de la factorisation du polynôme", e);
-        }
-    }
-
-    private String extractFactorizedExpression(String jsonResponse) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode root = objectMapper.readTree(jsonResponse);
-
-            JsonNode pods = root.path("queryresult").path("pods");
-            for (JsonNode pod : pods) {
-                if ("Factored form".equalsIgnoreCase(pod.path("title").asText())) {
-                    return pod.path("subpods").get(0).path("plaintext").asText();
-                }
-            }
-            return "Aucune factorisation trouvée.";
-        } catch (Exception e) {
-            throw new RuntimeException("Erreur lors de l'extraction de la factorisation", e);
         }
     }
 }

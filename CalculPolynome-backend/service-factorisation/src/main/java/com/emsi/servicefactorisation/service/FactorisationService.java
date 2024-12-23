@@ -2,6 +2,8 @@ package com.emsi.servicefactorisation.service;
 
 import com.emsi.servicefactorisation.entity.Polynomial;
 import com.emsi.servicefactorisation.repository.PolynomialRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +13,6 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor // Génère le constructeur avec les arguments nécessaires
 public class FactorisationService {
 
     @Value("${wolframalpha.api.key}")
@@ -20,37 +21,42 @@ public class FactorisationService {
     @Value("${wolframalpha.api.url}")
     private String apiUrl;
 
-    private final RestTemplate restTemplate = new RestTemplate();
-    private final PolynomialRepository polynomialRepository;
+    private final RestTemplate restTemplate;
 
-    public String factorize(Long id) {
-        Optional<Polynomial> polynomial = polynomialRepository.findById(id);
-        if (polynomial.isEmpty()) {
-            throw new RuntimeException("Polynomial not found with id: " + id);
-        }
-
-        String query = "factor " + polynomial.get().getExpression();
-        String url = String.format("%s?input=%s&format=plaintext&appid=%s", apiUrl, query, apiKey);
-
-        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-        return response.getBody();
+    public FactorisationService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
     }
 
-    public String solve(Long id) {
-        Optional<Polynomial> polynomial = polynomialRepository.findById(id);
-        if (polynomial.isEmpty()) {
-            throw new RuntimeException("Polynomial not found with id: " + id);
+    public String factoriserPolynome(String polynome) {
+        try {
+            String query = "factor " + polynome;
+            String url = String.format("%s?input=%s&format=JSON&output=JSON&appid=%s",
+                    apiUrl, query, apiKey);
+
+            // Appel à l'API Wolfram Alpha
+            String response = restTemplate.getForObject(url, String.class);
+
+            // Extraire le résultat de factorisation
+            return extractFactorizedExpression(response);
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la factorisation du polynôme", e);
         }
-
-        String query = "solve " + polynomial.get().getExpression();
-        String url = String.format("%s?input=%s&format=plaintext&appid=%s", apiUrl, query, apiKey);
-
-        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-        return response.getBody();
     }
 
-    public Polynomial savePolynomial(String expression) {
-        Polynomial polynomial = new Polynomial(expression);
-        return polynomialRepository.save(polynomial);
+    private String extractFactorizedExpression(String jsonResponse) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode root = objectMapper.readTree(jsonResponse);
+
+            JsonNode pods = root.path("queryresult").path("pods");
+            for (JsonNode pod : pods) {
+                if ("Factored form".equalsIgnoreCase(pod.path("title").asText())) {
+                    return pod.path("subpods").get(0).path("plaintext").asText();
+                }
+            }
+            return "Aucune factorisation trouvée.";
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de l'extraction de la factorisation", e);
+        }
     }
 }

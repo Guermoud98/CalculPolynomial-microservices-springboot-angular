@@ -13,10 +13,21 @@ public class Polynome {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String expression; // Exemple : x^3 - 6x^2 + 11x - 6
 
+    public String getRacines() {
+        return racines;
+    }
+
+    public void setRacines(String racines) {
+        this.racines = racines;
+    }
+
     private String description; // Une description optionnelle.
 
     @Column(columnDefinition = "DATETIME")
     private LocalDateTime createdAt;
+
+    @Column(columnDefinition = "TEXT") // Si vous utilisez MySQL
+    private String racines;
 
     public Polynome() {
         this.createdAt = LocalDateTime.now();

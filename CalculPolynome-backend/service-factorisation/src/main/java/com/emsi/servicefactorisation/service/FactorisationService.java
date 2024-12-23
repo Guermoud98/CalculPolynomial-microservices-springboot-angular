@@ -4,7 +4,7 @@ import com.emsi.servicefactorisation.entity.Polynomial;
 import com.emsi.servicefactorisation.repository.PolynomialRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -21,10 +21,19 @@ public class FactorisationService {
     @Value("${wolframalpha.api.url}")
     private String apiUrl;
 
+    @Autowired
+    private PolynomialRepository polynomialRepository;
+
     private final RestTemplate restTemplate;
 
     public FactorisationService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
+    }
+
+    public Polynomial savePolynomial(String expression) {
+        Polynomial polynomial = new Polynomial();
+        polynomial.setExpression(expression);
+        return polynomialRepository.save(polynomial);
     }
 
     public String factoriserPolynome(String polynome) {

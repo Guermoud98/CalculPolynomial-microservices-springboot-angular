@@ -1,6 +1,4 @@
 package ma.emsi.servicepolynome.entity;
-
-
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 

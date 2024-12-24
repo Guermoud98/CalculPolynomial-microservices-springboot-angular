@@ -1,6 +1,6 @@
 package ma.emsi.serviceracines.service;
-
 import ma.emsi.serviceracines.dto.PolynomeDTO;
+
 import org.matheclipse.core.eval.ExprEvaluator;
 import org.matheclipse.core.interfaces.IExpr;
 import org.slf4j.Logger;
@@ -25,30 +25,26 @@ public class RacineService {
         this.restTemplate = restTemplate;
     }
 
-    /**
-     * Calcul des racines d'un polynôme avec Symja.
-     *
-     * @param polynome L'expression du polynôme à résoudre.
-     * @return Les racines sous forme de texte ou un message d'erreur.
-     */
     public String calculerRacines(String polynome) {
         try {
             logger.info("Calcul des racines pour le polynôme : {}", polynome);
 
-            // Initialiser l'évaluateur Symja
+            // Initialize Symja evaluator
             ExprEvaluator evaluator = new ExprEvaluator();
 
-            // Préparer l'expression de résolution des racines
+            // Prepare the Symja expression
             String symjaExpression = String.format("Solve(%s == 0, x)", polynome);
+            logger.info("Symja expression: {}", symjaExpression);
 
-            // Évaluer l'expression avec Symja
+            // Evaluate the Symja expression
             IExpr result = evaluator.evaluate(symjaExpression);
+            logger.info("Symja result: {}", result);
 
-            if (result != null) {
+            if (result != null && !result.toString().isEmpty()) {
                 String racines = result.toString();
                 logger.info("Racines calculées : {}", racines);
 
-                // Envoi des données au Service Polynômes
+                // Send data to the Polynome Service
                 envoyerAuServicePolynomes(polynome, racines);
 
                 return racines;
@@ -62,12 +58,6 @@ public class RacineService {
         }
     }
 
-    /**
-     * Envoie les données au Service Polynômes pour persistance.
-     *
-     * @param polynome L'expression du polynôme.
-     * @param racines  Les racines calculées.
-     */
     private void envoyerAuServicePolynomes(String polynome, String racines) {
         try {
             PolynomeDTO polynomeDTO = new PolynomeDTO(polynome, racines);

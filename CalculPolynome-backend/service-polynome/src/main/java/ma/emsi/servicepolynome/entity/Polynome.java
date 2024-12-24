@@ -18,9 +18,6 @@ public class Polynome {
 
     private LocalDateTime createdAt;
 
-    @Column
-    private String factorizedValue; // Pour stocker la valeur factorisée
-
     public Polynome() {
         this.createdAt = LocalDateTime.now();
     }
@@ -56,12 +53,5 @@ public class Polynome {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
-    }
-    public String getFactorizedValue() {
-        return factorizedValue;
-    }
-
-    public void setFactorizedValue(String factorizedValue) {
-        this.factorizedValue = factorizedValue;
     }
 }

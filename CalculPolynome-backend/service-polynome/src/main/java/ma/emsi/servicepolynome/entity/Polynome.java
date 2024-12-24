@@ -13,7 +13,7 @@ public class Polynome {
 
     @Column(nullable = false)
     private String expression; // Exemple : x^3 - 6x^2 + 11x - 6
-
+    @Column(columnDefinition = "VARCHAR(255) DEFAULT 'Pas de description'")
     private String description; // Une description optionnelle.
 
     private LocalDateTime createdAt;

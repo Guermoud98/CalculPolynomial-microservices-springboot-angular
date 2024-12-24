@@ -19,7 +19,7 @@ public class FactorisationService {
 
     private static final Logger logger = LoggerFactory.getLogger(FactorisationService.class);
 
-    @Value("${service.polynomes.url:http://localhost:8081}")
+    @Value("${service.polynomes.url:http://localhost:8082}")
     private String polynomeServiceUrl;
 
     private final RestTemplate restTemplate;

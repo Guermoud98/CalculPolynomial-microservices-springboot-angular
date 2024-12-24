@@ -12,21 +12,17 @@ public class FactorisationController {
     @Autowired
     private FactorisationService factorisationService;
 
-    /**
-     * Endpoint pour sauvegarder un polynôme dans la base de données.
-     *
-     * @param polynome L'expression du polynôme à sauvegarder.
-     * @return Le polynôme sauvegardé.
-     */
-    @PostMapping("/polynomial")
-    public ResponseEntity<Polynomial> savePolynomial(@RequestParam String polynome) {
-        Polynomial savedPolynomial = factorisationService.savePolynomial(polynome);
-        return ResponseEntity.ok(savedPolynomial);
-    }
+    @PostMapping("/factorize")
+    public ResponseEntity<String> factorizeAndSend(@RequestParam String polynome) {
+        try {
+            // Appel au service pour factoriser et envoyer les données
+            String response = factorisationService.factoriserPolynome(polynome);
 
-    @GetMapping("/factorize")
-    public ResponseEntity<String> factorize(@RequestParam String polynome) {
-        String factorizedExpression = factorisationService.factoriserPolynome(polynome);
-        return ResponseEntity.ok(factorizedExpression);
+            // Retourner la réponse du service-polynome
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            // En cas d'erreur, retourner une réponse avec un statut HTTP approprié
+            return ResponseEntity.status(500).body("Erreur: " + e.getMessage());
+        }
     }
 }

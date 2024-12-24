@@ -1,60 +1,54 @@
 package com.emsi.servicefactorisation.service;
 
-import com.emsi.servicefactorisation.entity.Polynomial;
-import com.emsi.servicefactorisation.repository.PolynomialRepository;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.PostConstruct;
+import com.emsi.servicefactorisation.DTO.PolynomeDTO;
 import org.matheclipse.core.eval.ExprEvaluator;
 import org.matheclipse.core.interfaces.IExpr;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.HashMap;
-import java.util.Optional;
 
 @Service
 public class FactorisationService {
 
+    private static final Logger logger = LoggerFactory.getLogger(FactorisationService.class);
+
+    @Value("${service.polynomes.url:http://localhost:8081}")
+    private String polynomeServiceUrl;
+
     private final RestTemplate restTemplate;
     private final ExprEvaluator evaluator;
 
-    @Value("${service.polynomes.url}")
-    private String polynomeServiceUrl; // URL du service-polynome
-
-    @PostConstruct
-    public void validateConfig() {
-        if (polynomeServiceUrl == null || polynomeServiceUrl.isEmpty()) {
-            throw new IllegalStateException("L'URL du service-polynome n'est pas configurée !");
-        }
-    }
     public FactorisationService(RestTemplate restTemplate) {
-        this.evaluator = new ExprEvaluator(); // Initialisation de Matheclipse
         this.restTemplate = restTemplate;
+        this.evaluator = new ExprEvaluator(); // Initialisation de Matheclipse
     }
 
     public String factoriserPolynome(String polynome) {
         try {
-            // Étape 1 : Factoriser le polynôme
+            logger.info("Début de la factorisation pour le polynôme : {}", polynome);
+
+            // Étape 1 : Factoriser le polynôme avec Symja
             String expression = "Factor[" + polynome + "]";
-            IExpr result = evaluator.evaluate(expression); // Évalue l'expression
-            String factorized = result.toString(); // Résultat factorisé
+            IExpr result = evaluator.evaluate(expression);
+            if (result == null) {
+                logger.error("La factorisation a échoué, aucun résultat retourné.");
+                throw new IllegalStateException("La factorisation a échoué.");
+            }
+            String factorized = result.toString();
+            logger.info("Résultat de la factorisation : {}", factorized);
 
-            // Étape 2 : Créer l'objet Polynome
-            HashMap<String, String> data = new HashMap<>();
-            data.put("expression", polynome);
-            data.put("factorizedValue", factorized);
-
-            // Étape 3 : Envoyer les données au service-polynome
-            String response = restTemplate.postForObject(polynomeServiceUrl + "/save", data, String.class);
-
-            return response; // Retourner la réponse du service-polynome
+            // Étape 2 : Retourner uniquement la factorisation
+            return factorized;
         } catch (Exception e) {
-            throw new RuntimeException("Erreur lors de la factorisation ou de l'envoi du polynôme", e);
+            logger.error("Erreur inattendue lors de la factorisation :", e);
+            throw new RuntimeException("Erreur inattendue : " + e.getMessage(), e);
         }
     }
-    }
-
+}

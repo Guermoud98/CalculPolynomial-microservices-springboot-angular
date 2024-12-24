@@ -21,7 +21,7 @@ public class PolynomeController {
         return ResponseEntity.ok(savedPolynome);
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<Polynome>> getAllPolynomes() {
         return ResponseEntity.ok(service.getAllPolynomes());
     }

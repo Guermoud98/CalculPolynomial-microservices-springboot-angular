@@ -1,5 +1,7 @@
 package ma.emsi.servicepolynome.entity;
+
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -13,8 +15,17 @@ public class Polynome {
     private String expression; // Exemple : x^3 - 6x^2 + 11x - 6
     @Column(columnDefinition = "VARCHAR(255) DEFAULT 'Pas de description'")
     private String description; // Une description optionnelle.
-
+    @Column
+    private String racines; // Stockage des racines calculées
     private LocalDateTime createdAt;
+
+    public String getRacines() {
+        return racines;
+    }
+
+    public void setRacines(String racines) {
+        this.racines = racines;
+    }
 
     @Column
     private String factorizedValue; // Pour stocker la valeur factorisée
@@ -55,6 +66,7 @@ public class Polynome {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
     public String getFactorizedValue() {
         return factorizedValue;
     }

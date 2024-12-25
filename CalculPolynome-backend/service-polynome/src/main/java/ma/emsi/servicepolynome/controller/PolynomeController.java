@@ -20,8 +20,19 @@ public class PolynomeController {
         Polynome savedPolynome = service.savePolynome(polynome);
         return ResponseEntity.ok(savedPolynome);
     }
+    @GetMapping("/findByExpression")
+    public ResponseEntity<Polynome> findByExpression(@RequestParam String expression) {
+        Polynome polynome = service.findByExpression(expression);
+        return polynome != null ? ResponseEntity.ok(polynome) : ResponseEntity.notFound().build();
+    }
 
-    @GetMapping
+    @PostMapping("/update")
+    public ResponseEntity<Polynome> updatePolynome(@RequestBody Polynome polynome) {
+        Polynome updatedPolynome = service.updatePolynome(polynome);
+        return ResponseEntity.ok(updatedPolynome);
+    }
+
+    @GetMapping("/all")
     public ResponseEntity<List<Polynome>> getAllPolynomes() {
         return ResponseEntity.ok(service.getAllPolynomes());
     }
